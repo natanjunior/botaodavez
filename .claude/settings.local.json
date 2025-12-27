@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch:*)",
+      "Bash(ls:*)",
+      "Bash(powershell:*)",
+      "Bash(tree:*)",
+      "Bash(del \"D:\\\\Dev\\\\wsprojects\\\\botaodavez\\\\next.config.ts\")",
+      "Bash(npm run dev:*)",
+      "Bash(git checkout:*)"
+    ]
+  }
+}
