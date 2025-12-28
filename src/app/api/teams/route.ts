@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/db/supabase';
 import { teamService } from '@/lib/services/teamService';
 import { gameService } from '@/lib/services/gameService';
-import { emitTeamCreated } from '@/lib/socket/events/teamEvents';
 
 /**
  * POST /api/teams
@@ -54,8 +53,7 @@ export async function POST(req: NextRequest) {
       color,
     });
 
-    // Emit WebSocket event
-    emitTeamCreated(game_token.toUpperCase(), team);
+    // Real-time updates will be handled by Supabase Realtime
 
     return NextResponse.json(
       {

@@ -1,116 +1,33 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AvatarWithStatus } from '@/components/shared/Avatar';
 import { RoundControls } from '@/components/admin/RoundControls';
-import type { Participant, Team } from '@/lib/db/schema';
+import { useGameParticipants } from '@/lib/hooks';
+import type { Team } from '@/lib/db/schema';
 
 export interface GameDashboardProps {
   gameToken: string;
 }
 
-interface ParticipantWithStatus extends Participant {
-  is_online: boolean;
-  team?: Team;
-}
-
 export function GameDashboard({ gameToken }: GameDashboardProps) {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [participants, setParticipants] = useState<ParticipantWithStatus[]>([]);
+  // Use Realtime hook for participants
+  const { participants, loading, error: participantsError } = useGameParticipants(gameToken);
+
   const [teams, setTeams] = useState<Team[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize Socket.io connection
+  // Load teams
   useEffect(() => {
-    const newSocket = io({
-      path: '/api/socket',
-      query: {
-        game_token: gameToken,
-        role: 'admin',
-      },
-    });
-
-    setSocket(newSocket);
-
-    // Socket event handlers
-    newSocket.on('connect', () => {
-      console.log('[GameDashboard] Connected to Socket.io');
-    });
-
-    newSocket.on('participant:joined', (data) => {
-      console.log('[GameDashboard] Participant joined:', data);
-      loadParticipants();
-    });
-
-    newSocket.on('participant:online', (data) => {
-      console.log('[GameDashboard] Participant online:', data);
-      setParticipants((prev) =>
-        prev.map((p) =>
-          p.id === data.participant_id ? { ...p, is_online: true } : p
-        )
-      );
-    });
-
-    newSocket.on('participant:offline', (data) => {
-      console.log('[GameDashboard] Participant offline:', data);
-      setParticipants((prev) =>
-        prev.map((p) =>
-          p.id === data.participant_id ? { ...p, is_online: false } : p
-        )
-      );
-    });
-
-    newSocket.on('team:created', () => {
-      console.log('[GameDashboard] Team created');
-      loadTeams();
-    });
-
-    newSocket.on('team:updated', () => {
-      console.log('[GameDashboard] Team updated');
-      loadTeams();
-      loadParticipants();
-    });
-
-    newSocket.on('team:deleted', () => {
-      console.log('[GameDashboard] Team deleted');
-      loadTeams();
-      loadParticipants();
-    });
-
-    // Cleanup on unmount
-    return () => {
-      newSocket.close();
-    };
-  }, [gameToken]);
-
-  // Load participants and teams
-  useEffect(() => {
-    loadParticipants();
     loadTeams();
   }, [gameToken]);
 
-  const loadParticipants = async () => {
-    try {
-      setError(null);
-      const response = await fetch(`/api/participants?game_token=${gameToken}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to load participants');
-      }
-
-      const data = await response.json();
-      setParticipants(data.participants || []);
-    } catch (err) {
-      console.error('Failed to load participants:', err);
-      setError('Failed to load participants');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Update error state
+  useEffect(() => {
+    setError(participantsError);
+  }, [participantsError]);
 
   const loadTeams = async () => {
     try {
@@ -141,7 +58,7 @@ export function GameDashboard({ gameToken }: GameDashboardProps) {
         throw new Error('Failed to kick participant');
       }
 
-      await loadParticipants();
+      // Realtime will automatically update the participants list
     } catch (err) {
       console.error('Failed to kick participant:', err);
       setError('Failed to kick participant');

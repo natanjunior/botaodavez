@@ -1,5 +1,5 @@
-import { supabase, supabaseAdmin } from '@/lib/db/supabase';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
+import { supabaseAdmin } from '@/lib/db/supabaseAdmin';
 import type { Team, TeamInsert } from '@/lib/db/schema';
 import { validateHexColor, validateGameToken } from '@/lib/utils/validation';
 import { gameService } from './gameService';

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/db/supabase';
 import { teamService } from '@/lib/services/teamService';
-import { emitTeamUpdated, emitTeamDeleted } from '@/lib/socket/events/teamEvents';
 
 /**
  * GET /api/teams/[id]
@@ -102,8 +101,7 @@ export async function PATCH(
     // Update team
     const updatedTeam = await teamService.updateTeam(id, { name, color });
 
-    // Emit WebSocket event
-    emitTeamUpdated(game.token, updatedTeam);
+    // Real-time updates will be handled by Supabase Realtime
 
     return NextResponse.json({ team: updatedTeam });
   } catch (error) {
@@ -181,8 +179,7 @@ export async function DELETE(
     // Delete team
     await teamService.deleteTeam(id);
 
-    // Emit WebSocket event
-    emitTeamDeleted(game.token, id);
+    // Real-time updates will be handled by Supabase Realtime
 
     return NextResponse.json(
       { message: 'Team deleted successfully' },

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/db/supabase';
 import { roundService } from '@/lib/services/roundService';
-import { emitRoundStarted } from '@/lib/socket/handlers/roundHandlers';
 
 /**
  * POST /api/rounds/[id]/start
@@ -55,12 +54,7 @@ export async function POST(
     // Start round
     const startedRound = await roundService.startRound(id);
 
-    // Emit WebSocket event to all participants
-    emitRoundStarted(
-      game.token,
-      startedRound.id,
-      startedRound.countdown_duration!
-    );
+    // Real-time updates will be handled by Supabase Realtime
 
     return NextResponse.json({
       round: {

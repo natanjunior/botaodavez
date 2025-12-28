@@ -1,10 +1,10 @@
-import { supabase, supabaseAdmin } from '@/lib/db/supabase';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
+import { supabaseAdmin } from '@/lib/db/supabaseAdmin';
 import type { Game, GameInsert } from '@/lib/db/schema';
 import { generateUniqueGameToken } from '@/lib/utils/tokenGenerator';
 import { validateGameToken } from '@/lib/utils/validation';
 
-type GameType = Database['public']['Enums']['game_type'];
+type GameType = 'button';
 
 export interface CreateGameParams {
   admin_id: string;

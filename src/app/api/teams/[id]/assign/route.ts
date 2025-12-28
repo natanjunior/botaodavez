@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/db/supabase';
 import { teamService } from '@/lib/services/teamService';
-import { emitTeamParticipantsUpdated } from '@/lib/socket/events/teamEvents';
 
 /**
  * POST /api/teams/[id]/assign
@@ -79,8 +78,7 @@ export async function POST(
     // Assign participants to team
     await teamService.assignParticipants(team_id, participant_ids);
 
-    // Emit WebSocket event
-    emitTeamParticipantsUpdated(game.token, team_id, participant_ids);
+    // Real-time updates will be handled by Supabase Realtime
 
     return NextResponse.json(
       { message: 'Participants assigned successfully' },

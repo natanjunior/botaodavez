@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Socket } from 'socket.io-client';
+import type { Round } from '@/lib/db/schema';
 
 type ButtonState = 'disabled' | 'countdown' | 'active' | 'eliminated' | 'completed';
 
 export interface ReactionButtonProps {
-  socket: Socket | null;
-  roundId: string | null;
+  round: Round | null;
   participantId: string;
   onEliminated?: () => void;
   onReactionRecorded?: (reactionTime: number) => void;
@@ -25,8 +24,7 @@ export interface ReactionButtonProps {
  * - completed: Button disabled after successful click
  */
 export function ReactionButton({
-  socket,
-  roundId,
+  round,
   participantId,
   onEliminated,
   onReactionRecorded,
@@ -40,49 +38,44 @@ export function ReactionButton({
   // Timer reference for countdown
   const countdownTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Listen for round events from Socket.io
+  // React to round status changes (replaces Socket.io events)
   useEffect(() => {
-    if (!socket) return;
+    if (!round) {
+      resetButton();
+      return;
+    }
 
-    socket.on('round:started', (data) => {
-      console.log('[ReactionButton] Round started:', data);
+    if (round.status === 'waiting') {
+      // Round created, waiting to start
+      setButtonState('disabled');
+    } else if (round.status === 'in_progress') {
+      // Round started - begin countdown
+      console.log('[ReactionButton] Round started:', round);
 
-      if (data.round_id === roundId) {
-        // Start countdown
-        setButtonState('countdown');
-        setCountdownDuration(data.countdown_duration);
-        setCountdownStartTime(performance.now());
+      setButtonState('countdown');
+      setCountdownDuration(round.countdown_duration);
+      setCountdownStartTime(performance.now());
 
-        // Set timer to change button to green after countdown
-        countdownTimer.current = setTimeout(() => {
-          setButtonState('active');
-          setGreenStartTime(performance.now());
-        }, data.countdown_duration);
-      }
-    });
-
-    socket.on('round:cancelled', (data) => {
-      console.log('[ReactionButton] Round cancelled:', data);
-
-      if (data.round_id === roundId) {
-        resetButton();
-      }
-    });
-
-    socket.on('round:result', (data) => {
-      console.log('[ReactionButton] Round result received:', data);
-
-      if (data.round_id === roundId) {
-        setButtonState('completed');
-      }
-    });
+      // Set timer to change button to green after countdown
+      countdownTimer.current = setTimeout(() => {
+        setButtonState('active');
+        setGreenStartTime(performance.now());
+      }, round.countdown_duration);
+    } else if (round.status === 'completed') {
+      // Round completed
+      setButtonState('completed');
+    } else if (round.status === 'cancelled') {
+      // Round cancelled
+      resetButton();
+    }
 
     return () => {
-      socket.off('round:started');
-      socket.off('round:cancelled');
-      socket.off('round:result');
+      if (countdownTimer.current) {
+        clearTimeout(countdownTimer.current);
+        countdownTimer.current = null;
+      }
     };
-  }, [socket, roundId]);
+  }, [round?.id, round?.status]);
 
   // Cleanup countdown timer on unmount
   useEffect(() => {
@@ -106,16 +99,24 @@ export function ReactionButton({
     }
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
+    if (!round) return;
+
     if (buttonState === 'countdown') {
       // Clicked during yellow phase - eliminated!
       setButtonState('eliminated');
 
-      if (socket && roundId) {
-        socket.emit('round:eliminate', {
-          round_id: roundId,
-          participant_id: participantId,
+      try {
+        await fetch(`/api/rounds/${round.id}/result`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            participant_id: participantId,
+            was_eliminated: true,
+          }),
         });
+      } catch (err) {
+        console.error('[ReactionButton] Failed to record elimination:', err);
       }
 
       if (onEliminated) {
@@ -129,12 +130,18 @@ export function ReactionButton({
       setReactionTime(reaction);
       setButtonState('completed');
 
-      if (socket && roundId) {
-        socket.emit('round:button-click', {
-          round_id: roundId,
-          participant_id: participantId,
-          reaction_time: reaction,
+      try {
+        await fetch(`/api/rounds/${round.id}/result`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            participant_id: participantId,
+            reaction_time: reaction,
+            was_eliminated: false,
+          }),
         });
+      } catch (err) {
+        console.error('[ReactionButton] Failed to record reaction time:', err);
       }
 
       if (onReactionRecorded) {

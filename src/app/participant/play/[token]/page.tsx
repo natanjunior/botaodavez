@@ -2,34 +2,36 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { io, Socket } from 'socket.io-client';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AvatarWithStatus } from '@/components/shared/Avatar';
 import { ReactionButton } from '@/components/participant/ReactionButton';
 import { RoundStatus } from '@/components/participant/RoundStatus';
 import { SpectatorView } from '@/components/participant/SpectatorView';
-import type { Participant, Game, RoundResult } from '@/lib/db/schema';
+import { useGameParticipants, useGameRounds, useRoundResults } from '@/lib/hooks';
+import type { Game, RoundParticipant } from '@/lib/db/schema';
+
+interface GameResponse {
+  game: Game;
+}
 
 export default function ParticipantPlayPage() {
   const params = useParams();
   const router = useRouter();
   const gameToken = params.token as string;
 
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [game, setGame] = useState<Game | null>(null);
-  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [gameId, setGameId] = useState<string | null>(null);
   const [participantId, setParticipantId] = useState<string | null>(null);
   const [participantName, setParticipantName] = useState<string | null>(null);
-  const [currentRoundId, setCurrentRoundId] = useState<string | null>(null);
-  const [roundResults, setRoundResults] = useState<RoundResult[]>([]);
-  const [inRound, setInRound] = useState(false);
-  const [isSpectator, setIsSpectator] = useState(false);
-  const [roundStatus, setRoundStatus] = useState<'waiting' | 'in_progress' | 'completed'>('waiting');
-  const [participantIdsInRound, setParticipantIdsInRound] = useState<string[]>([]);
-  const [countdownDuration, setCountdownDuration] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [roundParticipants, setRoundParticipants] = useState<RoundParticipant[]>([]);
+
+  // Use Realtime hooks
+  const { participants, loading: participantsLoading } = useGameParticipants(gameToken);
+  const { currentRound, loading: roundsLoading } = useGameRounds(gameId);
+  const { results: roundResults } = useRoundResults(currentRound?.id || null);
 
   // Get participant info from localStorage
   useEffect(() => {
@@ -47,110 +49,22 @@ export default function ParticipantPlayPage() {
     setParticipantName(storedName);
   }, [gameToken, router]);
 
-  // Load game and participants
+  // Load game
   useEffect(() => {
     if (!participantId) return;
 
     loadGame();
-    loadParticipants();
   }, [gameToken, participantId]);
 
-  // Initialize Socket.io connection
+  // Load round participants when round changes
   useEffect(() => {
-    if (!participantId) return;
+    if (!currentRound?.id) {
+      setRoundParticipants([]);
+      return;
+    }
 
-    const newSocket = io({
-      path: '/api/socket',
-      query: {
-        game_token: gameToken,
-        participant_id: participantId,
-        role: 'participant',
-      },
-    });
-
-    setSocket(newSocket);
-
-    newSocket.on('connect', () => {
-      console.log('[ParticipantPlay] Connected to Socket.io');
-    });
-
-    newSocket.on('participant:joined', (data) => {
-      console.log('[ParticipantPlay] Participant joined:', data);
-      loadParticipants();
-    });
-
-    newSocket.on('participant:online', (data) => {
-      console.log('[ParticipantPlay] Participant online:', data);
-      setParticipants((prev) =>
-        prev.map((p) =>
-          p.id === data.participant_id ? { ...p, is_online: true } : p
-        )
-      );
-    });
-
-    newSocket.on('participant:offline', (data) => {
-      console.log('[ParticipantPlay] Participant offline:', data);
-      setParticipants((prev) =>
-        prev.map((p) =>
-          p.id === data.participant_id ? { ...p, is_online: false } : p
-        )
-      );
-    });
-
-    // Round events
-    newSocket.on('round:created', (data) => {
-      console.log('[ParticipantPlay] Round created:', data);
-      setCurrentRoundId(data.round_id);
-      setParticipantIdsInRound(data.participant_ids);
-      setRoundStatus('waiting');
-      setRoundResults([]);
-      setCountdownDuration(null);
-
-      if (data.participant_ids.includes(participantId)) {
-        setInRound(true);
-        setIsSpectator(false);
-      } else {
-        setInRound(false);
-        setIsSpectator(true);
-      }
-    });
-
-    newSocket.on('round:started', (data) => {
-      console.log('[ParticipantPlay] Round started:', data);
-      setRoundStatus('in_progress');
-      setCountdownDuration(data.countdown_duration);
-    });
-
-    newSocket.on('round:cancelled', (data) => {
-      console.log('[ParticipantPlay] Round cancelled:', data);
-      setCurrentRoundId(null);
-      setInRound(false);
-      setIsSpectator(false);
-      setRoundStatus('waiting');
-      setParticipantIdsInRound([]);
-      setCountdownDuration(null);
-      setRoundResults([]);
-    });
-
-    newSocket.on('round:result', (data) => {
-      console.log('[ParticipantPlay] Round result:', data);
-      setRoundStatus('completed');
-      setRoundResults(data.results);
-    });
-
-    // Heartbeat to maintain connection
-    const heartbeatInterval = setInterval(() => {
-      newSocket.emit('participant:heartbeat', {
-        participant_id: participantId,
-      });
-    }, 10000); // Every 10 seconds
-
-    // Cleanup
-    return () => {
-      clearInterval(heartbeatInterval);
-      newSocket.close();
-    };
-  }, [gameToken, participantId]);
+    loadRoundParticipants(currentRound.id);
+  }, [currentRound?.id]);
 
   const loadGame = async () => {
     try {
@@ -161,30 +75,29 @@ export default function ParticipantPlayPage() {
         throw new Error('Game not found');
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as GameResponse;
       setGame(data.game);
+      setGameId(data.game.id);
     } catch (err) {
       console.error('Failed to load game:', err);
       setError('Failed to load game');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const loadParticipants = async () => {
+  const loadRoundParticipants = async (roundId: string) => {
     try {
-      setError(null);
-      const response = await fetch(`/api/participants?game_token=${gameToken}`);
+      const response = await fetch(`/api/rounds/${roundId}`);
 
       if (!response.ok) {
-        throw new Error('Failed to load participants');
+        return;
       }
 
-      const data = await response.json();
-      setParticipants(data.participants || []);
+      const data: { round: { participants: RoundParticipant[] } } = await response.json();
+      setRoundParticipants(data.round.participants || []);
     } catch (err) {
-      console.error('Failed to load participants:', err);
-      setError('Failed to load participants');
-    } finally {
-      setLoading(false);
+      console.error('Failed to load round participants:', err);
     }
   };
 
@@ -197,7 +110,12 @@ export default function ParticipantPlayPage() {
     }
   };
 
-  if (loading) {
+  // Determine participant's status in current round
+  const inRound = roundParticipants.some((rp) => rp.participant_id === participantId);
+  const isSpectator = currentRound && !inRound;
+  const participantIdsInRound = roundParticipants.map((rp) => rp.participant_id);
+
+  if (loading || participantsLoading || roundsLoading) {
     return (
       <div className="min-h-screen bg-brown-dark p-6 flex items-center justify-center">
         <Card>
@@ -256,7 +174,7 @@ export default function ParticipantPlayPage() {
               currentParticipantId={participantId}
             />
           </div>
-        ) : inRound && participantId && !roundResults.length ? (
+        ) : inRound && participantId && currentRound && currentRound.status === 'in_progress' ? (
           /* Show Reaction Button */
           <Card className="mb-6">
             <div className="flex flex-col items-center justify-center py-8">
@@ -264,22 +182,36 @@ export default function ParticipantPlayPage() {
                 Get Ready!
               </h2>
               <ReactionButton
-                socket={socket}
-                roundId={currentRoundId}
+                round={currentRound}
                 participantId={participantId}
               />
             </div>
           </Card>
-        ) : isSpectator ? (
+        ) : inRound && participantId && currentRound && currentRound.status === 'waiting' ? (
+          /* Waiting for round to start */
+          <Card className="mb-6">
+            <h2 className="text-2xl font-bold text-gold-light mb-4">
+              You're in this Round!
+            </h2>
+            <p className="text-gray-300 mb-4">
+              Waiting for the host to start the round...
+            </p>
+            <div className="skeu-shadow-inset p-4 bg-brown-medium rounded">
+              <p className="text-center text-gray-400">
+                Get ready! The button will appear when the round starts.
+              </p>
+            </div>
+          </Card>
+        ) : isSpectator && currentRound ? (
           /* Show Spectator View */
           <SpectatorView
             participantsInRound={participants.filter((p) =>
               participantIdsInRound.includes(p.id)
             )}
             allParticipants={participants}
-            roundStatus={roundStatus}
+            roundStatus={currentRound.status}
             roundResults={roundResults}
-            countdownDuration={countdownDuration}
+            countdownDuration={currentRound.countdown_duration}
           />
         ) : (
           /* Waiting for Round */

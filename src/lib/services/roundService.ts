@@ -1,11 +1,11 @@
-import { supabase, supabaseAdmin } from '@/lib/db/supabase';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
+import { supabaseAdmin } from '@/lib/db/supabaseAdmin';
 import type { Round, RoundParticipant, RoundResult } from '@/lib/db/schema';
 import { generateCountdownDuration, determineWinners } from '@/lib/utils/timing';
 import { validateGameToken } from '@/lib/utils/validation';
 import { gameService } from './gameService';
 
-type RoundStatus = Database['public']['Enums']['round_status'];
+type RoundStatus = 'waiting' | 'in_progress' | 'completed' | 'cancelled';
 
 export interface CreateRoundParams {
   game_token: string;

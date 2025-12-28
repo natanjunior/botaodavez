@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AvatarWithStatus } from '@/components/shared/Avatar';
+import { useGameRounds, useRoundResults } from '@/lib/hooks';
 import type { Participant, Round, RoundResult } from '@/lib/db/schema';
 
 export interface RoundControlsProps {
@@ -14,34 +14,30 @@ export interface RoundControlsProps {
 
 export function RoundControls({ gameToken, participants }: RoundControlsProps) {
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
-  const [currentRound, setCurrentRound] = useState<Round | null>(null);
-  const [roundResults, setRoundResults] = useState<RoundResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [playCount, setPlayCount] = useState(1);
+  const [gameId, setGameId] = useState<string | null>(null);
 
-  // Initialize Socket.io for round events
+  // Use Realtime hooks for rounds and results
+  const { currentRound } = useGameRounds(gameId);
+  const { results: roundResults } = useRoundResults(currentRound?.id || null);
+
+  // Get game ID from gameToken
   useEffect(() => {
-    const newSocket = io({
-      path: '/api/socket',
-      query: {
-        game_token: gameToken,
-        role: 'admin',
-      },
-    });
-
-    setSocket(newSocket);
-
-    newSocket.on('round:result', (data) => {
-      console.log('[RoundControls] Round result received:', data);
-      setRoundResults(data.results);
-      setCurrentRound((prev) => prev ? { ...prev, status: 'completed' } : null);
-    });
-
-    return () => {
-      newSocket.close();
+    const fetchGameId = async () => {
+      try {
+        const response = await fetch(`/api/games/${gameToken}`);
+        if (response.ok) {
+          const data = await response.json();
+          setGameId(data.game.id);
+        }
+      } catch (err) {
+        console.error('Failed to fetch game:', err);
+      }
     };
+
+    fetchGameId();
   }, [gameToken]);
 
   const handleParticipantToggle = (participantId: string) => {
@@ -76,9 +72,7 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
         throw new Error(data.error || 'Failed to create round');
       }
 
-      const data = await response.json();
-      setCurrentRound(data.round);
-      setRoundResults([]);
+      // Round will be updated via Realtime hook
       // Keep play count when replaying with same participants
     } catch (err) {
       console.error('Failed to create round:', err);
@@ -114,8 +108,7 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
         throw new Error(data.error || 'Failed to start round');
       }
 
-      const data = await response.json();
-      setCurrentRound(data.round);
+      // Round status will be updated via Realtime hook
     } catch (err) {
       console.error('Failed to start round:', err);
       setError(err instanceof Error ? err.message : 'Failed to start round');
@@ -140,9 +133,7 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
         throw new Error(data.error || 'Failed to stop round');
       }
 
-      const data = await response.json();
-      setCurrentRound(data.round);
-      setRoundResults([]);
+      // Round status will be updated via Realtime hook
     } catch (err) {
       console.error('Failed to stop round:', err);
       setError(err instanceof Error ? err.message : 'Failed to stop round');
@@ -152,10 +143,10 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
   };
 
   const handlePlayAgain = () => {
-    setCurrentRound(null);
-    setRoundResults([]);
+    // Reset state for new round
     setError(null);
     setPlayCount((prev) => prev + 1);
+    // currentRound and roundResults are managed by Realtime hooks
   };
 
   const onlineParticipants = participants.filter((p) => p.is_online);

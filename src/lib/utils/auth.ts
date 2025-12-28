@@ -1,13 +1,14 @@
-import { cookies } from 'next/headers';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { Database } from '../db/schema';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!;
 
 /**
  * Get the current authenticated admin session (server-side)
  * @returns Admin session or null if not authenticated
  */
 export async function getAdminSession() {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
   const {
     data: { session },

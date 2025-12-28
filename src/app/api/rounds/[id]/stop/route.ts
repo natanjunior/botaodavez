@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/db/supabase';
 import { roundService } from '@/lib/services/roundService';
-import { emitRoundCancelled } from '@/lib/socket/handlers/roundHandlers';
 
 /**
  * POST /api/rounds/[id]/stop
@@ -55,8 +54,7 @@ export async function POST(
     // Stop round
     const stoppedRound = await roundService.stopRound(id);
 
-    // Emit WebSocket event
-    emitRoundCancelled(game.token, stoppedRound.id);
+    // Real-time updates will be handled by Supabase Realtime
 
     return NextResponse.json({
       round: {

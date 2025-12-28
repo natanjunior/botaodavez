@@ -1,5 +1,5 @@
-import { supabase, supabaseAdmin } from '@/lib/db/supabase';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
+import { supabaseAdmin } from '@/lib/db/supabaseAdmin';
 import type { Participant, ParticipantInsert } from '@/lib/db/schema';
 import { sanitizeParticipantName, validateGameToken } from '@/lib/utils/validation';
 import { gameService } from './gameService';
