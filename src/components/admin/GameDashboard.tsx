@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AvatarWithStatus } from '@/components/shared/Avatar';
+import { RoundControls } from '@/components/admin/RoundControls';
 import type { Participant, Team } from '@/lib/db/schema';
 
 export interface GameDashboardProps {
@@ -317,17 +318,8 @@ export function GameDashboard({ gameToken }: GameDashboardProps) {
         </CardContent>
       </Card>
 
-      {/* Placeholder for future features */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-2xl font-bold text-gold-light">Round Controls</h2>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-400">
-            Round controls will be available in the next implementation phase.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Round Controls */}
+      <RoundControls gameToken={gameToken} participants={participants} />
     </div>
   );
 }

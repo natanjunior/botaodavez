@@ -6,7 +6,9 @@ import { io, Socket } from 'socket.io-client';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { AvatarWithStatus } from '@/components/shared/Avatar';
-import type { Participant, Game } from '@/lib/db/schema';
+import { ReactionButton } from '@/components/participant/ReactionButton';
+import { RoundStatus } from '@/components/participant/RoundStatus';
+import type { Participant, Game, RoundResult } from '@/lib/db/schema';
 
 export default function ParticipantPlayPage() {
   const params = useParams();
@@ -18,6 +20,9 @@ export default function ParticipantPlayPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [participantId, setParticipantId] = useState<string | null>(null);
   const [participantName, setParticipantName] = useState<string | null>(null);
+  const [currentRoundId, setCurrentRoundId] = useState<string | null>(null);
+  const [roundResults, setRoundResults] = useState<RoundResult[]>([]);
+  const [inRound, setInRound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,6 +90,32 @@ export default function ParticipantPlayPage() {
           p.id === data.participant_id ? { ...p, is_online: false } : p
         )
       );
+    });
+
+    // Round events
+    newSocket.on('round:created', (data) => {
+      console.log('[ParticipantPlay] Round created:', data);
+      if (data.participant_ids.includes(participantId)) {
+        setCurrentRoundId(data.round_id);
+        setInRound(true);
+        setRoundResults([]);
+      }
+    });
+
+    newSocket.on('round:started', (data) => {
+      console.log('[ParticipantPlay] Round started:', data);
+    });
+
+    newSocket.on('round:cancelled', (data) => {
+      console.log('[ParticipantPlay] Round cancelled:', data);
+      setCurrentRoundId(null);
+      setInRound(false);
+      setRoundResults([]);
+    });
+
+    newSocket.on('round:result', (data) => {
+      console.log('[ParticipantPlay] Round result:', data);
+      setRoundResults(data.results);
     });
 
     // Heartbeat to maintain connection
@@ -195,20 +226,46 @@ export default function ParticipantPlayPage() {
           </div>
         )}
 
-        {/* Waiting for game to start */}
-        <Card className="mb-6">
-          <h2 className="text-2xl font-bold text-gold-light mb-4">
-            Waiting for Game to Start
-          </h2>
-          <p className="text-gray-300 mb-4">
-            The game host will start the round when everyone is ready.
-          </p>
-          <div className="skeu-shadow-inset p-4 bg-brown-medium rounded">
-            <p className="text-center text-gray-400">
-              Game controls will appear here when the round starts
-            </p>
+        {/* Round Area */}
+        {roundResults.length > 0 && participantId ? (
+          /* Show Results */
+          <div className="mb-6">
+            <RoundStatus
+              results={roundResults}
+              participants={participants}
+              currentParticipantId={participantId}
+            />
           </div>
-        </Card>
+        ) : inRound && participantId ? (
+          /* Show Reaction Button */
+          <Card className="mb-6">
+            <div className="flex flex-col items-center justify-center py-8">
+              <h2 className="text-2xl font-bold text-gold-light mb-6">
+                Get Ready!
+              </h2>
+              <ReactionButton
+                socket={socket}
+                roundId={currentRoundId}
+                participantId={participantId}
+              />
+            </div>
+          </Card>
+        ) : (
+          /* Waiting for Round */
+          <Card className="mb-6">
+            <h2 className="text-2xl font-bold text-gold-light mb-4">
+              Waiting for Round
+            </h2>
+            <p className="text-gray-300 mb-4">
+              The game host will start the round when everyone is ready.
+            </p>
+            <div className="skeu-shadow-inset p-4 bg-brown-medium rounded">
+              <p className="text-center text-gray-400">
+                Round controls will appear here when the host starts a round
+              </p>
+            </div>
+          </Card>
+        )}
 
         {/* Participants List */}
         <Card>

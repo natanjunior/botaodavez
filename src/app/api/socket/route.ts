@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { Server } from 'socket.io';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/lib/socket/types';
 import { validateGameToken } from '@/lib/utils/validation';
+import { handleButtonClick, handleEliminate } from '@/lib/socket/handlers/roundHandlers';
 
 // Global Socket.io server instance
 let io: Server<ClientToServerEvents, ServerToClientEvents>;
@@ -103,6 +104,15 @@ export async function GET(req: NextRequest) {
           game_token: game_token as string,
         });
       }
+
+      // Round event handlers
+      socket.on('round:button-click', (data) => {
+        handleButtonClick(socket, data);
+      });
+
+      socket.on('round:eliminate', (data) => {
+        handleEliminate(socket, data);
+      });
     });
 
     console.log('[Socket.io] Server initialized');

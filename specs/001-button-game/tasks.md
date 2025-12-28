@@ -96,50 +96,50 @@ Next.js App Router structure (unified frontend + backend):
 
 ### Admin Authentication (US1)
 
-- [ ] T018 [P] [US1] Create admin login page in src/app/(admin)/login/page.tsx
-- [ ] T019 [US1] Implement POST /api/auth/login endpoint in src/app/api/auth/login/route.ts
-- [ ] T020 [US1] Implement POST /api/auth/logout endpoint in src/app/api/auth/logout/route.ts
-- [ ] T021 [US1] Implement GET /api/auth/me endpoint in src/app/api/auth/me/route.ts
+- [x] T018 [P] [US1] Create admin login page in src/app/(admin)/login/page.tsx
+- [x] T019 [US1] Implement POST /api/auth/login endpoint in src/app/api/auth/login/route.ts
+- [x] T020 [US1] Implement POST /api/auth/logout endpoint in src/app/api/auth/logout/route.ts
+- [x] T021 [US1] Implement GET /api/auth/me endpoint in src/app/api/auth/me/route.ts
 
 ### Game Management (US1)
 
-- [ ] T022 [P] [US1] Implement gameService in src/lib/services/gameService.ts (create, list, get, delete)
-- [ ] T023 [US1] Implement POST /api/games endpoint in src/app/api/games/route.ts (create game with token)
-- [ ] T024 [US1] Implement GET /api/games endpoint in src/app/api/games/route.ts (list admin's games)
-- [ ] T025 [US1] Implement GET /api/games/[token]/route.ts endpoint (get game by token)
-- [ ] T026 [US1] Implement DELETE /api/games/[token]/route.ts endpoint (delete game)
+- [x] T022 [P] [US1] Implement gameService in src/lib/services/gameService.ts (create, list, get, delete)
+- [x] T023 [US1] Implement POST /api/games endpoint in src/app/api/games/route.ts (create game with token)
+- [x] T024 [US1] Implement GET /api/games endpoint in src/app/api/games/route.ts (list admin's games)
+- [x] T025 [US1] Implement GET /api/games/[token]/route.ts endpoint (get game by token)
+- [x] T026 [US1] Implement DELETE /api/games/[token]/route.ts endpoint (delete game)
 
 ### Admin Dashboard (US1)
 
-- [ ] T027 [P] [US1] Create admin dashboard page in src/app/(admin)/dashboard/page.tsx
-- [ ] T028 [US1] Create GameDashboard component in src/components/admin/GameDashboard.tsx
-- [ ] T029 [US1] Create game management page in src/app/(admin)/game/[token]/page.tsx
+- [x] T027 [P] [US1] Create admin dashboard page in src/app/(admin)/dashboard/page.tsx
+- [x] T028 [US1] Create GameDashboard component in src/components/admin/GameDashboard.tsx
+- [x] T029 [US1] Create game management page in src/app/(admin)/game/[token]/page.tsx
 
 ### Participant Join Flow (US1)
 
-- [ ] T030 [P] [US1] Implement participantService in src/lib/services/participantService.ts (create, update, delete, get)
-- [ ] T031 [US1] Implement POST /api/participants endpoint in src/app/api/participants/route.ts (join game)
-- [ ] T032 [US1] Implement DELETE /api/participants/[id]/route.ts endpoint (remove participant)
-- [ ] T033 [US1] Create participant join page in src/app/(participant)/join/page.tsx (token entry form)
-- [ ] T034 [US1] Create participant game view page in src/app/(participant)/play/[token]/page.tsx
+- [x] T030 [P] [US1] Implement participantService in src/lib/services/participantService.ts (create, update, delete, get)
+- [x] T031 [US1] Implement POST /api/participants endpoint in src/app/api/participants/route.ts (join game)
+- [x] T032 [US1] Implement DELETE /api/participants/[id]/route.ts endpoint (remove participant)
+- [x] T033 [US1] Create participant join page in src/app/(participant)/join/page.tsx (token entry form)
+- [x] T034 [US1] Create participant game view page in src/app/(participant)/play/[token]/page.tsx
 
 ### Participant List & Presence (US1)
 
-- [ ] T035 [P] [US1] Create ParticipantList component in src/components/admin/ParticipantList.tsx
-- [ ] T036 [US1] Implement WebSocket participant:joined event handler in src/lib/socket/handlers/gameHandlers.ts
-- [ ] T037 [US1] Implement WebSocket participant:left event handler in src/lib/socket/handlers/gameHandlers.ts
-- [ ] T038 [US1] Implement WebSocket participant:online/offline event handlers in presenceHandlers.ts
-- [ ] T039 [US1] Add real-time participant list updates via Socket.io in ParticipantList component
+- [x] T035 [P] [US1] Create ParticipantList component in src/components/admin/ParticipantList.tsx (integrated in GameDashboard)
+- [x] T036 [US1] Implement WebSocket participant:joined event handler in src/lib/socket/handlers/gameHandlers.ts (integrated in socket/route.ts)
+- [x] T037 [US1] Implement WebSocket participant:left event handler in src/lib/socket/handlers/gameHandlers.ts (integrated in socket/route.ts)
+- [x] T038 [US1] Implement WebSocket participant:online/offline event handlers in presenceHandlers.ts
+- [x] T039 [US1] Add real-time participant list updates via Socket.io in ParticipantList component (integrated in GameDashboard)
 
 ### Team Management (US1)
 
-- [ ] T040 [P] [US1] Implement teamService in src/lib/services/teamService.ts (create, update, delete, assign participants)
-- [ ] T041 [US1] Implement POST /api/teams endpoint in src/app/api/teams/route.ts (create team)
-- [ ] T042 [US1] Implement PATCH /api/teams/[id]/route.ts endpoint (update team)
-- [ ] T043 [US1] Implement DELETE /api/teams/[id]/route.ts endpoint (delete team)
-- [ ] T044 [US1] Create TeamManager component in src/components/admin/TeamManager.tsx
-- [ ] T045 [US1] Implement WebSocket team:created/updated/deleted event handlers in gameHandlers.ts
-- [ ] T046 [US1] Add real-time team updates via Socket.io in TeamManager component
+- [x] T040 [P] [US1] Implement teamService in src/lib/services/teamService.ts (create, update, delete, assign participants)
+- [x] T041 [US1] Implement POST /api/teams endpoint in src/app/api/teams/route.ts (create team)
+- [x] T042 [US1] Implement PATCH /api/teams/[id]/route.ts endpoint (update team)
+- [x] T043 [US1] Implement DELETE /api/teams/[id]/route.ts endpoint (delete team)
+- [x] T044 [US1] Create TeamManager component in src/components/admin/TeamManager.tsx (integrated in GameDashboard)
+- [x] T045 [US1] Implement WebSocket team:created/updated/deleted event handlers in gameHandlers.ts (created teamEvents.ts)
+- [x] T046 [US1] Add real-time team updates via Socket.io in TeamManager component (integrated in GameDashboard)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional:
 - Admin can create game and get token
@@ -149,7 +149,7 @@ Next.js App Router structure (unified frontend + backend):
 
 ---
 
-## Phase 4: User Story 2 - Executar Rodada Individual (Priority: P1) 🎯 MVP
+## Phase 4: User Story 2 - Executar Rodada Individual (Priority: P1) 🎯 MVP ✅ COMPLETED
 
 **Goal**: Admin selects participants, starts round, button mechanics work, system determines winner
 
@@ -162,44 +162,44 @@ Next.js App Router structure (unified frontend + backend):
 
 ### Round Management Service (US2)
 
-- [ ] T047 [P] [US2] Implement roundService in src/lib/services/roundService.ts (create, update, start, stop, result)
-- [ ] T048 [US2] Implement POST /api/rounds endpoint in src/app/api/rounds/route.ts (create round)
-- [ ] T049 [US2] Implement PATCH /api/rounds/[id]/route.ts endpoint (update participants)
-- [ ] T050 [US2] Implement POST /api/rounds/[id]/start/route.ts endpoint (start round with countdown)
-- [ ] T051 [US2] Implement POST /api/rounds/[id]/stop/route.ts endpoint (cancel round)
-- [ ] T052 [US2] Implement GET /api/rounds/[id]/result/route.ts endpoint (get round result)
+- [x] T047 [P] [US2] Implement roundService in src/lib/services/roundService.ts (create, update, start, stop, result)
+- [x] T048 [US2] Implement POST /api/rounds endpoint in src/app/api/rounds/route.ts (create round)
+- [x] T049 [US2] Implement PATCH /api/rounds/[id]/route.ts endpoint (update participants)
+- [x] T050 [US2] Implement POST /api/rounds/[id]/start/route.ts endpoint (start round with countdown)
+- [x] T051 [US2] Implement POST /api/rounds/[id]/stop/route.ts endpoint (cancel round)
+- [x] T052 [US2] Implement GET /api/rounds/[id]/result/route.ts endpoint (get round result)
 
 ### Round Controls (Admin Side - US2)
 
-- [ ] T053 [P] [US2] Create RoundControls component in src/components/admin/RoundControls.tsx
-- [ ] T054 [US2] Add round creation UI (select participants, create round button)
-- [ ] T055 [US2] Add "Jogar" button with validation (all selected participants online)
-- [ ] T056 [US2] Add "Parar Rodada" button for manual cancellation
-- [ ] T057 [US2] Add round result display in RoundControls component
+- [x] T053 [P] [US2] Create RoundControls component in src/components/admin/RoundControls.tsx
+- [x] T054 [US2] Add round creation UI (select participants, create round button)
+- [x] T055 [US2] Add "Jogar" button with validation (all selected participants online)
+- [x] T056 [US2] Add "Parar Rodada" button for manual cancellation
+- [x] T057 [US2] Add round result display in RoundControls component
 
 ### Reaction Button (Participant Side - US2)
 
-- [ ] T058 [P] [US2] Create ReactionButton component in src/components/participant/ReactionButton.tsx
-- [ ] T059 [US2] Implement button states: disabled → yellow (countdown) → green (active) → red (eliminated)
-- [ ] T060 [US2] Implement local countdown timer with millisecond precision
-- [ ] T061 [US2] Implement reaction time measurement from green → click
-- [ ] T062 [US2] Add visual feedback for button state transitions with skeuomorphic styling
+- [x] T058 [P] [US2] Create ReactionButton component in src/components/participant/ReactionButton.tsx
+- [x] T059 [US2] Implement button states: disabled → yellow (countdown) → green (active) → red (eliminated)
+- [x] T060 [US2] Implement local countdown timer with millisecond precision
+- [x] T061 [US2] Implement reaction time measurement from green → click
+- [x] T062 [US2] Add visual feedback for button state transitions with skeuomorphic styling
 
 ### Round WebSocket Flow (US2)
 
-- [ ] T063 [P] [US2] Implement round:created event handler in src/lib/socket/handlers/roundHandlers.ts
-- [ ] T064 [US2] Implement round:started event handler (receive countdown_duration, start local timer)
-- [ ] T065 [US2] Implement round:button-click client→server event (send reaction time)
-- [ ] T066 [US2] Implement round:eliminate client→server event (clicked yellow button)
-- [ ] T067 [US2] Implement round:result server→client event handler (display winner)
-- [ ] T068 [US2] Implement round:cancelled event handler (admin stopped round)
+- [x] T063 [P] [US2] Implement round:created event handler in src/lib/socket/handlers/roundHandlers.ts
+- [x] T064 [US2] Implement round:started event handler (receive countdown_duration, start local timer)
+- [x] T065 [US2] Implement round:button-click client→server event (send reaction time)
+- [x] T066 [US2] Implement round:eliminate client→server event (clicked yellow button)
+- [x] T067 [US2] Implement round:result server→client event handler (display winner)
+- [x] T068 [US2] Implement round:cancelled event handler (admin stopped round)
 
 ### Round Result Logic (US2)
 
-- [ ] T069 [US2] Implement winner determination logic in roundService (lowest reaction time, handle ties)
-- [ ] T070 [US2] Store round results in round_results table (reaction times, eliminations, winner)
-- [ ] T071 [US2] Broadcast round:result event to all participants and admin
-- [ ] T072 [P] [US2] Create RoundStatus component in src/components/participant/RoundStatus.tsx (show result)
+- [x] T069 [US2] Implement winner determination logic in roundService (lowest reaction time, handle ties)
+- [x] T070 [US2] Store round results in round_results table (reaction times, eliminations, winner)
+- [x] T071 [US2] Broadcast round:result event to all participants and admin
+- [x] T072 [P] [US2] Create RoundStatus component in src/components/participant/RoundStatus.tsx (show result)
 
 **Checkpoint**: At this point, User Story 2 should be fully functional:
 - Admin can select participants and start round

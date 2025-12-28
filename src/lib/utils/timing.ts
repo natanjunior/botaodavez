@@ -99,24 +99,28 @@ export function isSuspiciouslyFast(reactionTime: number): boolean {
  * Compare reaction times and determine winner(s)
  * Handles ties by returning all participants with the lowest time
  *
- * @param reactionTimes - Map of participant IDs to their reaction times
+ * @param results - Array of round results with reaction times
  * @returns Array of winner participant IDs (may be multiple if tied)
  */
-export function determineWinners(reactionTimes: Map<string, number>): string[] {
-  if (reactionTimes.size === 0) {
+export function determineWinners(
+  results: Array<{ participant_id: string; reaction_time: number | null; was_eliminated: boolean }>
+): string[] {
+  // Filter out eliminated participants and those with no reaction time
+  const validResults = results.filter(
+    (r) => !r.was_eliminated && r.reaction_time !== null && r.reaction_time !== undefined
+  );
+
+  if (validResults.length === 0) {
     return [];
   }
 
   // Find minimum reaction time
-  const minTime = Math.min(...Array.from(reactionTimes.values()));
+  const minTime = Math.min(...validResults.map((r) => r.reaction_time!));
 
   // Get all participants with the minimum time (handles ties)
-  const winners: string[] = [];
-  for (const [participantId, time] of reactionTimes.entries()) {
-    if (time === minTime) {
-      winners.push(participantId);
-    }
-  }
+  const winners = validResults
+    .filter((r) => r.reaction_time === minTime)
+    .map((r) => r.participant_id);
 
   return winners;
 }
