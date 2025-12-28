@@ -1,0 +1,338 @@
+/**
+ * Skeuomorphic Design System
+ * Retro analog aesthetic with depth, shadows, and tactile elements
+ */
+
+/* =============================================================================
+   CSS Variables - Theme Colors & Effects
+   ============================================================================= */
+
+:root {
+  /* Primary Colors - Retro Palette */
+  --color-brown-dark: #3e2723;
+  --color-brown-medium: #5d4037;
+  --color-brown-light: #8d6e63;
+  --color-gold: #d4af37;
+  --color-gold-light: #e6c964;
+  --color-gold-dark: #b8941f;
+
+  /* Button States */
+  --color-button-yellow: #ffd700;
+  --color-button-green: #4caf50;
+  --color-button-red: #f44336;
+  --color-button-disabled: #9e9e9e;
+
+  /* Shadows & Depth */
+  --shadow-raised: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-pressed: inset 0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(212, 175, 55, 0.6);
+
+  /* Textures & Gradients */
+  --gradient-metal: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  --gradient-button: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+
+  /* Border Radius */
+  --radius-button: 12px;
+  --radius-card: 16px;
+  --radius-input: 8px;
+}
+
+/* =============================================================================
+   Base Skeuomorphic Components
+   ============================================================================= */
+
+/* Raised Button */
+.skeu-button {
+  position: relative;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: var(--radius-button);
+  background: var(--gradient-button), var(--color-gold);
+  box-shadow: var(--shadow-raised);
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.skeu-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.35), 0 3px 6px rgba(0, 0, 0, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.skeu-button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-pressed);
+}
+
+.skeu-button:disabled {
+  background: var(--color-button-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+/* Reaction Button (Large, Prominent) */
+.skeu-reaction-button {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 4px solid rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-raised), var(--shadow-glow);
+  cursor: pointer;
+  transition: all 0.1s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeu-reaction-button::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 70%
+  );
+  transform: rotate(45deg);
+}
+
+.skeu-reaction-button:active {
+  transform: scale(0.95);
+  box-shadow: var(--shadow-pressed);
+}
+
+/* Button Color Variants */
+.skeu-reaction-button-yellow {
+  background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    ),
+    var(--color-button-yellow);
+}
+
+.skeu-reaction-button-green {
+  background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    ),
+    var(--color-button-green);
+  animation: pulse-green 1s ease-in-out infinite;
+}
+
+.skeu-reaction-button-red {
+  background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    ),
+    var(--color-button-red);
+}
+
+.skeu-reaction-button-disabled {
+  background: var(--color-button-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Card Component */
+.skeu-card {
+  background: var(--gradient-metal), var(--color-brown-medium);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.skeu-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+}
+
+/* Input Field */
+.skeu-input {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-input);
+  border: 2px solid var(--color-brown-light);
+  background: var(--color-brown-dark);
+  color: white;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.skeu-input:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.skeu-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* LED Indicator */
+.skeu-led {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.skeu-led::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.skeu-led-online {
+  background: #4caf50;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 8px rgba(76, 175, 80, 0.8);
+}
+
+.skeu-led-offline {
+  background: #757575;
+}
+
+/* Badge/Chip */
+.skeu-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: var(--gradient-button), var(--color-brown-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Toggle Switch */
+.skeu-toggle {
+  width: 50px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--color-brown-dark);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.skeu-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--gradient-button), white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s;
+}
+
+.skeu-toggle-active {
+  background: var(--color-gold);
+}
+
+.skeu-toggle-active::after {
+  transform: translateX(24px);
+}
+
+/* =============================================================================
+   Animations
+   ============================================================================= */
+
+@keyframes pulse-green {
+  0%,
+  100% {
+    box-shadow: var(--shadow-raised), 0 0 20px rgba(76, 175, 80, 0.6);
+  }
+  50% {
+    box-shadow: var(--shadow-raised), 0 0 40px rgba(76, 175, 80, 0.9);
+  }
+}
+
+@keyframes countdown-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* =============================================================================
+   Utility Classes
+   ============================================================================= */
+
+.skeu-shadow-raised {
+  box-shadow: var(--shadow-raised);
+}
+
+.skeu-shadow-pressed {
+  box-shadow: var(--shadow-pressed);
+}
+
+.skeu-shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+.skeu-gradient-metal {
+  background: var(--gradient-metal);
+}
+
+.skeu-gradient-button {
+  background: var(--gradient-button);
+}
+
+/* =============================================================================
+   Responsive Adjustments
+   ============================================================================= */
+
+@media (max-width: 640px) {
+  .skeu-reaction-button {
+    width: 150px;
+    height: 150px;
+  }
+
+  .skeu-card {
+    padding: 1rem;
+  }
+}

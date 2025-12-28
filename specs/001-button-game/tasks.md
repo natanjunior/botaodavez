@@ -53,32 +53,32 @@ Next.js App Router structure (unified frontend + backend):
 
 ### Database & Types
 
-- [ ] T004 Generate TypeScript types from Supabase schema in src/lib/db/schema.ts
-- [ ] T005 [P] Verify all entity types match database schema in src/types/game.ts
+- [x] T004 Generate TypeScript types from Supabase schema in src/lib/db/schema.ts
+- [x] T005 [P] Verify all entity types match database schema in src/types/game.ts
 
 ### Authentication & Authorization
 
-- [ ] T006 Implement Supabase Auth middleware in src/middleware/auth.ts for admin routes
-- [ ] T007 [P] Create auth helper functions in src/lib/utils/auth.ts (session validation, token verification)
+- [x] T006 Implement Supabase Auth middleware in src/middleware.ts for admin routes
+- [x] T007 [P] Create auth helper functions in src/lib/utils/auth.ts (session validation, token verification)
 
 ### Core Utilities
 
-- [ ] T008 [P] Implement token generator utility in src/lib/utils/tokenGenerator.ts (6-8 char alphanumeric)
-- [ ] T009 [P] Implement timing utilities in src/lib/utils/timing.ts (countdown, reaction time measurement)
-- [ ] T010 [P] Implement validation utilities in src/lib/utils/validation.ts (input sanitization, XSS prevention)
+- [x] T008 [P] Implement token generator utility in src/lib/utils/tokenGenerator.ts (6-8 char alphanumeric)
+- [x] T009 [P] Implement timing utilities in src/lib/utils/timing.ts (countdown, reaction time measurement)
+- [x] T010 [P] Implement validation utilities in src/lib/utils/validation.ts (input sanitization, XSS prevention)
 
 ### Socket.io Infrastructure
 
-- [ ] T011 Complete Socket.io server setup in src/app/api/socket/route.ts with room management
-- [ ] T012 [P] Define WebSocket event types in src/lib/socket/types.ts (ServerToClientEvents, ClientToServerEvents)
-- [ ] T013 [P] Implement presence handler in src/lib/socket/handlers/presenceHandlers.ts (online/offline, heartbeat)
+- [x] T011 Complete Socket.io server setup in src/app/api/socket/route.ts with room management
+- [x] T012 [P] Define WebSocket event types in src/lib/socket/types.ts (ServerToClientEvents, ClientToServerEvents)
+- [x] T013 [P] Implement presence handler in src/lib/socket/handlers/presenceHandlers.ts (online/offline, heartbeat)
 
 ### Base UI Components
 
-- [ ] T014 [P] Create base Button component in src/components/ui/Button.tsx with skeuomorphic styling
-- [ ] T015 [P] Create base Card component in src/components/ui/Card.tsx with skeuomorphic styling
-- [ ] T016 [P] Create Avatar component in src/components/shared/Avatar.tsx (DiceBear integration)
-- [ ] T017 [P] Create base Input component in src/components/ui/Input.tsx
+- [x] T014 [P] Create base Button component in src/components/ui/Button.tsx with skeuomorphic styling
+- [x] T015 [P] Create base Card component in src/components/ui/Card.tsx with skeuomorphic styling
+- [x] T016 [P] Create Avatar component in src/components/shared/Avatar.tsx (DiceBear integration)
+- [x] T017 [P] Create base Input component in src/components/ui/Input.tsx
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

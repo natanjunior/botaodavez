@@ -1,47 +1,125 @@
 import { NextRequest } from 'next/server';
 import { Server } from 'socket.io';
+import type { ServerToClientEvents, ClientToServerEvents } from '@/lib/socket/types';
+import { validateGameToken } from '@/lib/utils/validation';
 
-let io: Server;
+// Global Socket.io server instance
+let io: Server<ClientToServerEvents, ServerToClientEvents>;
 
+/**
+ * Socket.io server initialization and handler
+ * Endpoint: GET /api/socket
+ *
+ * Connection query params:
+ * - game_token: Game token (required)
+ * - participant_id: Participant UUID (optional for admin)
+ * - role: 'admin' | 'participant' (required)
+ */
 export async function GET(req: NextRequest) {
+  // Initialize Socket.io server if not already created
   if (!io) {
-    // Inicializa Socket.io server
     const httpServer = (req as any).socket.server;
-    io = new Server(httpServer, {
+
+    io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
       path: '/api/socket',
       addTrailingSlash: false,
+      cors: {
+        origin: process.env.NEXT_PUBLIC_APP_URL || '*',
+        methods: ['GET', 'POST'],
+        credentials: true,
+      },
+      transports: ['websocket', 'polling'],
     });
 
     io.on('connection', (socket) => {
       const { game_token, participant_id, role } = socket.handshake.query;
 
-      // Entrar na room do game
-      socket.join(game_token as string);
+      // Validate connection parameters
+      if (!game_token || !role) {
+        console.error('Socket connection missing required parameters');
+        socket.disconnect(true);
+        return;
+      }
 
-      console.log(`${role} conectado ao game ${game_token}`);
+      // Validate game token format
+      try {
+        validateGameToken(game_token as string);
+      } catch (error) {
+        console.error('Invalid game token:', error);
+        socket.emit('error', {
+          code: 'INVALID_TOKEN',
+          message: 'Invalid game token format',
+        });
+        socket.disconnect(true);
+        return;
+      }
 
-      // Eventos do participante
-      socket.on('participant:heartbeat', (data) => {
-        // TODO: Atualizar last_seen no banco
-        console.log('Heartbeat recebido:', data);
+      // Join the game room
+      const roomName = `game:${game_token}`;
+      socket.join(roomName);
+
+      console.log(`[Socket.io] ${role} connected to game ${game_token}`, {
+        socketId: socket.id,
+        participantId: participant_id || 'admin',
       });
 
-      socket.on('round:button-click', (data) => {
-        // TODO: Registrar clique e determinar vencedor
-        console.log('Botão clicado:', data);
+      // Store connection metadata
+      socket.data.gameToken = game_token;
+      socket.data.participantId = participant_id;
+      socket.data.role = role;
+
+      // Handle disconnect
+      socket.on('disconnect', (reason) => {
+        console.log(`[Socket.io] ${role} disconnected from game ${game_token}`, {
+          socketId: socket.id,
+          reason,
+        });
+
+        // Emit offline status to room
+        if (participant_id) {
+          io.to(roomName).emit('participant:offline', {
+            participant_id: participant_id as string,
+            game_token: game_token as string,
+          });
+        }
       });
 
-      socket.on('round:eliminate', (data) => {
-        // TODO: Marcar participante como eliminado
-        console.log('Participante eliminado:', data);
+      // Handle connection errors
+      socket.on('error', (error) => {
+        console.error(`[Socket.io] Socket error:`, error);
       });
 
-      socket.on('disconnect', () => {
-        // TODO: Marcar participante como offline
-        console.log(`${role} desconectado do game ${game_token}`);
+      // Emit connection success to client
+      socket.emit('connected', {
+        socketId: socket.id,
+        gameToken: game_token as string,
+        timestamp: new Date().toISOString(),
       });
+
+      // Notify room about new connection (if participant)
+      if (role === 'participant' && participant_id) {
+        socket.to(roomName).emit('participant:online', {
+          participant_id: participant_id as string,
+          game_token: game_token as string,
+        });
+      }
     });
+
+    console.log('[Socket.io] Server initialized');
   }
 
-  return new Response('Socket.io server running', { status: 200 });
+  return new Response('Socket.io server running', {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/plain',
+    },
+  });
+}
+
+/**
+ * Get Socket.io server instance
+ * Used by event handlers and other parts of the application
+ */
+export function getSocketServer(): Server<ClientToServerEvents, ServerToClientEvents> | null {
+  return io || null;
 }
