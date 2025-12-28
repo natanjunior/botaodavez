@@ -19,6 +19,7 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [playCount, setPlayCount] = useState(1);
 
   // Initialize Socket.io for round events
   useEffect(() => {
@@ -78,6 +79,7 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
       const data = await response.json();
       setCurrentRound(data.round);
       setRoundResults([]);
+      // Keep play count when replaying with same participants
     } catch (err) {
       console.error('Failed to create round:', err);
       setError(err instanceof Error ? err.message : 'Failed to create round');
@@ -153,6 +155,7 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
     setCurrentRound(null);
     setRoundResults([]);
     setError(null);
+    setPlayCount((prev) => prev + 1);
   };
 
   const onlineParticipants = participants.filter((p) => p.is_online);
@@ -173,9 +176,16 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
     if (currentRound.status === 'waiting') {
       return (
         <div className="space-y-4">
-          <p className="text-gold-light font-semibold">
-            Round created! Click "Jogar" to start.
-          </p>
+          <div>
+            <p className="text-gold-light font-semibold">
+              Round created! Click "Jogar" to start.
+            </p>
+            {playCount > 1 && (
+              <p className="text-sm text-gray-400 mt-1">
+                Replay #{playCount}
+              </p>
+            )}
+          </div>
           <div className="flex gap-3">
             <Button
               variant="primary"
@@ -199,9 +209,16 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
     if (currentRound.status === 'in_progress') {
       return (
         <div className="space-y-4">
-          <p className="text-gold-light font-semibold animate-pulse">
-            Round in progress... Participants are playing!
-          </p>
+          <div>
+            <p className="text-gold-light font-semibold animate-pulse">
+              Round in progress... Participants are playing!
+            </p>
+            {playCount > 1 && (
+              <p className="text-sm text-gray-400 mt-1">
+                Replay #{playCount}
+              </p>
+            )}
+          </div>
           <p className="text-sm text-gray-400">
             Countdown: {currentRound.countdown_duration}ms
           </p>
@@ -224,7 +241,14 @@ export function RoundControls({ gameToken, participants }: RoundControlsProps) {
 
       return (
         <div className="space-y-4">
-          <h3 className="text-2xl font-bold text-gold-light">Round Complete!</h3>
+          <div>
+            <h3 className="text-2xl font-bold text-gold-light">Round Complete!</h3>
+            {playCount > 1 && (
+              <p className="text-sm text-gray-400 mt-1">
+                Replay #{playCount}
+              </p>
+            )}
+          </div>
 
           {/* Winners */}
           {winners.length > 0 && (

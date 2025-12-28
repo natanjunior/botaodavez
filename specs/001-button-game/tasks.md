@@ -223,12 +223,12 @@ Next.js App Router structure (unified frontend + backend):
 
 ### Replay Round Logic (US3)
 
-- [ ] T073 [US3] Add "Jogar Outra Vez" button to RoundControls component
-- [ ] T074 [US3] Implement round replay logic in roundService (reset status, clear old results)
-- [ ] T075 [US3] Update PATCH /api/rounds/[id]/route.ts to allow changing participants for replay
-- [ ] T076 [US3] Implement result deletion logic in roundService (delete previous results before new play)
-- [ ] T077 [US3] Update round:started event to handle replay scenario
-- [ ] T078 [US3] Add UI indication in admin dashboard for rounds that have been played multiple times
+- [x] T073 [US3] Add "Jogar Outra Vez" button to RoundControls component
+- [x] T074 [US3] Implement round replay logic in roundService (reset status, clear old results)
+- [x] T075 [US3] Update PATCH /api/rounds/[id]/route.ts to allow changing participants for replay
+- [x] T076 [US3] Implement result deletion logic in roundService (delete previous results before new play)
+- [x] T077 [US3] Update round:started event to handle replay scenario
+- [x] T078 [US3] Add UI indication in admin dashboard for rounds that have been played multiple times
 
 **Checkpoint**: At this point, User Story 3 should be fully functional:
 - Admin can replay rounds with different participants
