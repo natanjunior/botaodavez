@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { AvatarWithStatus } from '@/components/shared/Avatar';
 import { ReactionButton } from '@/components/participant/ReactionButton';
 import { RoundStatus } from '@/components/participant/RoundStatus';
+import { SpectatorView } from '@/components/participant/SpectatorView';
 import type { Participant, Game, RoundResult } from '@/lib/db/schema';
 
 export default function ParticipantPlayPage() {
@@ -23,6 +24,10 @@ export default function ParticipantPlayPage() {
   const [currentRoundId, setCurrentRoundId] = useState<string | null>(null);
   const [roundResults, setRoundResults] = useState<RoundResult[]>([]);
   const [inRound, setInRound] = useState(false);
+  const [isSpectator, setIsSpectator] = useState(false);
+  const [roundStatus, setRoundStatus] = useState<'waiting' | 'in_progress' | 'completed'>('waiting');
+  const [participantIdsInRound, setParticipantIdsInRound] = useState<string[]>([]);
+  const [countdownDuration, setCountdownDuration] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,26 +100,41 @@ export default function ParticipantPlayPage() {
     // Round events
     newSocket.on('round:created', (data) => {
       console.log('[ParticipantPlay] Round created:', data);
+      setCurrentRoundId(data.round_id);
+      setParticipantIdsInRound(data.participant_ids);
+      setRoundStatus('waiting');
+      setRoundResults([]);
+      setCountdownDuration(null);
+
       if (data.participant_ids.includes(participantId)) {
-        setCurrentRoundId(data.round_id);
         setInRound(true);
-        setRoundResults([]);
+        setIsSpectator(false);
+      } else {
+        setInRound(false);
+        setIsSpectator(true);
       }
     });
 
     newSocket.on('round:started', (data) => {
       console.log('[ParticipantPlay] Round started:', data);
+      setRoundStatus('in_progress');
+      setCountdownDuration(data.countdown_duration);
     });
 
     newSocket.on('round:cancelled', (data) => {
       console.log('[ParticipantPlay] Round cancelled:', data);
       setCurrentRoundId(null);
       setInRound(false);
+      setIsSpectator(false);
+      setRoundStatus('waiting');
+      setParticipantIdsInRound([]);
+      setCountdownDuration(null);
       setRoundResults([]);
     });
 
     newSocket.on('round:result', (data) => {
       console.log('[ParticipantPlay] Round result:', data);
+      setRoundStatus('completed');
       setRoundResults(data.results);
     });
 
@@ -227,8 +247,8 @@ export default function ParticipantPlayPage() {
         )}
 
         {/* Round Area */}
-        {roundResults.length > 0 && participantId ? (
-          /* Show Results */
+        {roundResults.length > 0 && participantId && inRound ? (
+          /* Show Results for Players */
           <div className="mb-6">
             <RoundStatus
               results={roundResults}
@@ -236,7 +256,7 @@ export default function ParticipantPlayPage() {
               currentParticipantId={participantId}
             />
           </div>
-        ) : inRound && participantId ? (
+        ) : inRound && participantId && !roundResults.length ? (
           /* Show Reaction Button */
           <Card className="mb-6">
             <div className="flex flex-col items-center justify-center py-8">
@@ -250,6 +270,17 @@ export default function ParticipantPlayPage() {
               />
             </div>
           </Card>
+        ) : isSpectator ? (
+          /* Show Spectator View */
+          <SpectatorView
+            participantsInRound={participants.filter((p) =>
+              participantIdsInRound.includes(p.id)
+            )}
+            allParticipants={participants}
+            roundStatus={roundStatus}
+            roundResults={roundResults}
+            countdownDuration={countdownDuration}
+          />
         ) : (
           /* Waiting for Round */
           <Card className="mb-6">

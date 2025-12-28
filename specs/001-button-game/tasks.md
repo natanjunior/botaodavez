@@ -248,11 +248,11 @@ Next.js App Router structure (unified frontend + backend):
 
 ### Spectator View (US4)
 
-- [ ] T079 [P] [US4] Create SpectatorView component in src/components/participant/SpectatorView.tsx
-- [ ] T080 [US4] Show list of participants in current round
-- [ ] T081 [US4] Update participant game view page to show SpectatorView when not in round
-- [ ] T082 [US4] Subscribe to round:result event for spectators (display winner)
-- [ ] T083 [US4] Add real-time updates for round status (waiting, in progress, completed)
+- [x] T079 [P] [US4] Create SpectatorView component in src/components/participant/SpectatorView.tsx
+- [x] T080 [US4] Show list of participants in current round
+- [x] T081 [US4] Update participant game view page to show SpectatorView when not in round
+- [x] T082 [US4] Subscribe to round:result event for spectators (display winner)
+- [x] T083 [US4] Add real-time updates for round status (waiting, in progress, completed)
 
 **Checkpoint**: All user stories should now be independently functional
 
