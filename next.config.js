@@ -11,6 +11,8 @@ const nextConfig = {
 	experimental: {
 		serverActions: true,
 	},
+	// Silencia warning do Turbopack - next-pwa usa webpack
+	turbopack: {},
 };
 
 module.exports = withPWA(nextConfig);
