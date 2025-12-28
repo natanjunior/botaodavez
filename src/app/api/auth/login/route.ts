@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
 import { validateEmail } from '@/lib/utils/validation';
 
 /**
@@ -29,9 +27,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Create Supabase client
-    const supabase = createRouteHandlerClient<Database>({ cookies });
 
     // Attempt login
     const { data, error: authError } = await supabase.auth.signInWithPassword({

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
 import { teamService } from '@/lib/services/teamService';
 import { emitTeamUpdated, emitTeamDeleted } from '@/lib/socket/events/teamEvents';
 
@@ -11,10 +9,10 @@ import { emitTeamUpdated, emitTeamDeleted } from '@/lib/socket/events/teamEvents
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const team = await teamService.getTeamById(id);
 
@@ -41,13 +39,12 @@ export async function GET(
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get current session (admin must be authenticated)
-    const supabase = createRouteHandlerClient<Database>({ cookies });
     const {
       data: { session },
       error: sessionError,
@@ -132,13 +129,12 @@ export async function PATCH(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get current session (admin must be authenticated)
-    const supabase = createRouteHandlerClient<Database>({ cookies });
     const {
       data: { session },
       error: sessionError,

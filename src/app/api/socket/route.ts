@@ -1,141 +1,41 @@
-import { NextRequest } from 'next/server';
-import { Server } from 'socket.io';
-import type { ServerToClientEvents, ClientToServerEvents } from '@/lib/socket/types';
-import { validateGameToken } from '@/lib/utils/validation';
-import { handleButtonClick, handleEliminate, handleParticipantDisconnect } from '@/lib/socket/handlers/roundHandlers';
-
-// Global Socket.io server instance
-let io: Server<ClientToServerEvents, ServerToClientEvents>;
+import { NextResponse } from 'next/server';
 
 /**
  * Socket.io server initialization and handler
  * Endpoint: GET /api/socket
  *
- * Connection query params:
- * - game_token: Game token (required)
- * - participant_id: Participant UUID (optional for admin)
- * - role: 'admin' | 'participant' (required)
+ * IMPORTANT: Socket.io does NOT work with Next.js 16 App Router using this approach.
+ * The traditional (req as any).socket.server approach is not available in App Router.
+ *
+ * Alternative solutions:
+ * 1. Use Supabase Realtime (RECOMMENDED for this project)
+ * 2. Create a separate Node.js server for Socket.io
+ * 3. Use Server-Sent Events (SSE)
+ * 4. Use Next.js Route Handlers with polling
+ *
+ * For now, this endpoint returns an error to prevent crashes.
  */
-export async function GET(req: NextRequest) {
-  // Initialize Socket.io server if not already created
-  if (!io) {
-    const httpServer = (req as any).socket.server;
-
-    io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
-      path: '/api/socket',
-      addTrailingSlash: false,
-      cors: {
-        origin: process.env.NEXT_PUBLIC_APP_URL || '*',
-        methods: ['GET', 'POST'],
-        credentials: true,
-      },
-      transports: ['websocket', 'polling'],
-    });
-
-    io.on('connection', (socket) => {
-      const { game_token, participant_id, role } = socket.handshake.query;
-
-      // Validate connection parameters
-      if (!game_token || !role) {
-        console.error('Socket connection missing required parameters');
-        socket.disconnect(true);
-        return;
-      }
-
-      // Validate game token format
-      try {
-        validateGameToken(game_token as string);
-      } catch (error) {
-        console.error('Invalid game token:', error);
-        socket.emit('error', {
-          code: 'INVALID_TOKEN',
-          message: 'Invalid game token format',
-        });
-        socket.disconnect(true);
-        return;
-      }
-
-      // Join the game room
-      const roomName = `game:${game_token}`;
-      socket.join(roomName);
-
-      console.log(`[Socket.io] ${role} connected to game ${game_token}`, {
-        socketId: socket.id,
-        participantId: participant_id || 'admin',
-      });
-
-      // Store connection metadata
-      socket.data.gameToken = game_token;
-      socket.data.participantId = participant_id;
-      socket.data.role = role;
-
-      // Handle disconnect
-      socket.on('disconnect', (reason) => {
-        console.log(`[Socket.io] ${role} disconnected from game ${game_token}`, {
-          socketId: socket.id,
-          reason,
-        });
-
-        // Emit offline status to room
-        if (participant_id) {
-          io.to(roomName).emit('participant:offline', {
-            participant_id: participant_id as string,
-            game_token: game_token as string,
-          });
-
-          // Handle disconnect during active round (auto-eliminate)
-          handleParticipantDisconnect(
-            participant_id as string,
-            game_token as string
-          );
-        }
-      });
-
-      // Handle connection errors
-      socket.on('error', (error) => {
-        console.error(`[Socket.io] Socket error:`, error);
-      });
-
-      // Emit connection success to client
-      socket.emit('connected', {
-        socketId: socket.id,
-        gameToken: game_token as string,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Notify room about new connection (if participant)
-      if (role === 'participant' && participant_id) {
-        socket.to(roomName).emit('participant:online', {
-          participant_id: participant_id as string,
-          game_token: game_token as string,
-        });
-      }
-
-      // Round event handlers
-      socket.on('round:button-click', (data) => {
-        handleButtonClick(socket, data);
-      });
-
-      socket.on('round:eliminate', (data) => {
-        handleEliminate(socket, data);
-      });
-    });
-
-    console.log('[Socket.io] Server initialized');
-  }
-
-  return new Response('Socket.io server running', {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/plain',
+export async function GET() {
+  return NextResponse.json(
+    {
+      error: 'Socket.io is not yet implemented',
+      message: 'Real-time features require Supabase Realtime or a separate Socket.io server',
+      alternatives: [
+        'Use Supabase Realtime for real-time synchronization',
+        'Create a separate Node.js server for Socket.io',
+        'Use Server-Sent Events (SSE)',
+        'Use polling with Route Handlers'
+      ]
     },
-  });
+    { status: 501 } // 501 Not Implemented
+  );
 }
 
 /**
  * Get Socket.io server instance
  * Used by event handlers and other parts of the application
  */
-export function getSocketServer(): Server<ClientToServerEvents, ServerToClientEvents> | null {
-  return io || null;
+export function getSocketServer() {
+  console.warn('[Socket.io] getSocketServer() called but Socket.io is not implemented');
+  return null;
 }

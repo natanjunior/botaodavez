@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
 
 /**
  * GET /api/auth/me
@@ -9,8 +7,6 @@ import type { Database } from '@/lib/db/schema';
  */
 export async function GET(req: NextRequest) {
   try {
-    // Create Supabase client
-    const supabase = createRouteHandlerClient<Database>({ cookies });
 
     // Get current session
     const {

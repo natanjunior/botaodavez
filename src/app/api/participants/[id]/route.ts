@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
 import { participantService } from '@/lib/services/participantService';
 import { gameService } from '@/lib/services/gameService';
 
@@ -11,10 +9,10 @@ import { gameService } from '@/lib/services/gameService';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const participant = await participantService.getParticipantById(id);
 
@@ -41,10 +39,10 @@ export async function GET(
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { name, is_online, team_id } = body;
 
@@ -95,13 +93,12 @@ export async function PATCH(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get current session (admin must be authenticated)
-    const supabase = createRouteHandlerClient<Database>({ cookies });
     const {
       data: { session },
       error: sessionError,

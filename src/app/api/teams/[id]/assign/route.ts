@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
 import { teamService } from '@/lib/services/teamService';
 import { emitTeamParticipantsUpdated } from '@/lib/socket/events/teamEvents';
 
@@ -11,13 +9,12 @@ import { emitTeamParticipantsUpdated } from '@/lib/socket/events/teamEvents';
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: team_id } = params;
+    const { id: team_id } = await params;
 
     // Get current session (admin must be authenticated)
-    const supabase = createRouteHandlerClient<Database>({ cookies });
     const {
       data: { session },
       error: sessionError,

@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
 import { gameService } from '@/lib/services/gameService';
-
-type GameType = Database['public']['Enums']['game_type'];
 
 /**
  * POST /api/games
@@ -13,7 +9,6 @@ type GameType = Database['public']['Enums']['game_type'];
 export async function POST(req: NextRequest) {
   try {
     // Get current session
-    const supabase = createRouteHandlerClient<Database>({ cookies });
     const {
       data: { session },
       error: sessionError,
@@ -38,7 +33,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validGameTypes: GameType[] = ['button'];
+    const validGameTypes = ['button'];
     if (!validGameTypes.includes(game_type)) {
       return NextResponse.json(
         { error: 'Invalid game_type. Must be: button' },
@@ -79,7 +74,6 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     // Get current session
-    const supabase = createRouteHandlerClient<Database>({ cookies });
     const {
       data: { session },
       error: sessionError,

@@ -57,7 +57,7 @@ export default function ParticipantJoinPage() {
       localStorage.setItem('game_token', gameToken.trim().toUpperCase());
 
       // Navigate to play page
-      router.push(`/(participant)/play/${gameToken.trim().toUpperCase()}`);
+      router.push(`/participant/play/${gameToken.trim().toUpperCase()}`);
     } catch (err) {
       console.error('Failed to join game:', err);
       setError(err instanceof Error ? err.message : 'Failed to join game');

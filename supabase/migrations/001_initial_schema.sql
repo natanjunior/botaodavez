@@ -9,11 +9,15 @@ CREATE TABLE admins (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Game type enum
+CREATE TYPE game_type AS ENUM ('button');
+
 -- Games table
 CREATE TABLE games (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   admin_id UUID NOT NULL REFERENCES admins(id) ON DELETE CASCADE,
   token VARCHAR(8) UNIQUE NOT NULL,
+  game_type game_type NOT NULL DEFAULT 'button',
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );

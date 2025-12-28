@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
 
 /**
  * POST /api/auth/logout
@@ -9,8 +7,6 @@ import type { Database } from '@/lib/db/schema';
  */
 export async function POST(req: NextRequest) {
   try {
-    // Create Supabase client
-    const supabase = createRouteHandlerClient<Database>({ cookies });
 
     // Sign out from Supabase
     const { error } = await supabase.auth.signOut();

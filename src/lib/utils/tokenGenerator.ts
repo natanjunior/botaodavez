@@ -52,18 +52,34 @@ export function generateSecureGameToken(length: number = 6): string {
 
 /**
  * Generate a unique game token with uniqueness check
- * Attempts to generate until a unique token is found or max attempts reached
+ * Fetches existing tokens from database and generates until unique token found
  *
- * @param existingTokens - Set of existing tokens to check against
  * @param length - Token length (default: 6)
  * @param maxAttempts - Maximum generation attempts (default: 100)
  * @returns Unique token or throws error if cannot generate unique token
  */
-export function generateUniqueGameToken(
-  existingTokens: Set<string>,
+export async function generateUniqueGameToken(
   length: number = 6,
   maxAttempts: number = 100
-): string {
+): Promise<string> {
+  // Import supabase here to avoid circular dependencies
+  const { supabase } = await import('@/lib/db/supabase');
+
+  // Fetch existing tokens from database
+  const { data: games, error } = await supabase
+    .from('games')
+    .select('token');
+
+  if (error) {
+    console.error('[TokenGenerator] Failed to fetch existing tokens:', error);
+    // If we can't fetch tokens, just generate one and hope it's unique
+    // This is acceptable because database has UNIQUE constraint on token
+    return generateSecureGameToken(length);
+  }
+
+  // Create Set of existing tokens for O(1) lookup
+  const existingTokens = new Set<string>(games?.map(g => g.token) || []);
+
   let attempts = 0;
 
   while (attempts < maxAttempts) {

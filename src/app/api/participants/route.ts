@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
           game_id: participant.game_id,
           name: participant.name,
           is_online: participant.is_online,
-          created_at: participant.created_at,
+          joined_at: participant.joined_at,
         },
       },
       { status: 201 }

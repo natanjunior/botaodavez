@@ -7,10 +7,10 @@ import { roundService } from '@/lib/services/roundService';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Get round results
     const results = await roundService.getRoundResult(id);

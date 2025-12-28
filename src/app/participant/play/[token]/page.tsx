@@ -39,7 +39,7 @@ export default function ParticipantPlayPage() {
 
     if (!storedId || !storedName || storedToken !== gameToken) {
       // Not joined or wrong game, redirect to join page
-      router.push(`/(participant)/join?token=${gameToken}`);
+      router.push(`/participant/join?token=${gameToken}`);
       return;
     }
 
@@ -193,7 +193,7 @@ export default function ParticipantPlayPage() {
       localStorage.removeItem('participant_id');
       localStorage.removeItem('participant_name');
       localStorage.removeItem('game_token');
-      router.push('/(participant)/join');
+      router.push('/participant/join');
     }
   };
 
@@ -213,7 +213,7 @@ export default function ParticipantPlayPage() {
         <Card className="max-w-md">
           <h2 className="text-xl font-bold text-red-500 mb-4">Error</h2>
           <p className="text-gray-300 mb-6">{error || 'Game not found'}</p>
-          <Button variant="secondary" onClick={() => router.push('/(participant)/join')}>
+          <Button variant="secondary" onClick={() => router.push('/participant/join')}>
             Join Another Game
           </Button>
         </Card>

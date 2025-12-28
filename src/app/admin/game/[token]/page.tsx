@@ -46,7 +46,7 @@ export default function GameControlPage() {
   };
 
   const handleBackToDashboard = () => {
-    router.push('/(admin)/dashboard');
+    router.push('/admin/dashboard');
   };
 
   if (loading) {

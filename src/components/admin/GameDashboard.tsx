@@ -199,7 +199,7 @@ export function GameDashboard({ gameToken }: GameDashboardProps) {
               <span className="text-gray-400">Join URL:</span>
               <span className="ml-2 font-mono text-sm text-gray-400">
                 {typeof window !== 'undefined' &&
-                  `${window.location.origin}/(participant)/join?token=${gameToken}`}
+                  `${window.location.origin}/participant/join?token=${gameToken}`}
               </span>
             </div>
           </div>

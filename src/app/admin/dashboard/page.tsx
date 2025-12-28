@@ -59,7 +59,7 @@ export default function AdminDashboardPage() {
       const newGame = data.game;
 
       // Navigate to game control page
-      router.push(`/(admin)/game/${newGame.token}`);
+      router.push(`/admin/game/${newGame.token}`);
     } catch (err) {
       console.error('Failed to create game:', err);
       setError(err instanceof Error ? err.message : 'Failed to create game');
@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/(admin)/login');
+      router.push('/admin/login');
     } catch (err) {
       console.error('Failed to logout:', err);
     }
@@ -176,7 +176,7 @@ export default function AdminDashboardPage() {
                         <Button
                           variant="primary"
                           size="small"
-                          onClick={() => router.push(`/(admin)/game/${game.token}`)}
+                          onClick={() => router.push(`/admin/game/${game.token}`)}
                         >
                           Manage Game
                         </Button>

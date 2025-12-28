@@ -92,7 +92,7 @@ export const participantService = {
       .from('participants')
       .select('*')
       .eq('game_id', game.id)
-      .order('created_at', { ascending: true });
+      .order('joined_at', { ascending: true });
 
     if (error) {
       console.error('[ParticipantService] Failed to get participants:', error);
@@ -194,7 +194,7 @@ export const participantService = {
       .from('participants')
       .select('*')
       .eq('team_id', team_id)
-      .order('created_at', { ascending: true });
+      .order('joined_at', { ascending: true });
 
     if (error) {
       console.error('[ParticipantService] Failed to get team participants:', error);
@@ -223,7 +223,7 @@ export const participantService = {
       .select('*')
       .eq('game_id', game.id)
       .is('team_id', null)
-      .order('created_at', { ascending: true });
+      .order('joined_at', { ascending: true });
 
     if (error) {
       console.error('[ParticipantService] Failed to get unassigned participants:', error);

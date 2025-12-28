@@ -41,6 +41,7 @@ export interface Database {
           id: string
           admin_id: string
           token: string
+          game_type: Database['public']['Enums']['game_type']
           created_at: string
           updated_at: string
         }
@@ -48,6 +49,7 @@ export interface Database {
           id?: string
           admin_id: string
           token: string
+          game_type?: Database['public']['Enums']['game_type']
           created_at?: string
           updated_at?: string
         }
@@ -55,6 +57,7 @@ export interface Database {
           id?: string
           admin_id?: string
           token?: string
+          game_type?: Database['public']['Enums']['game_type']
           created_at?: string
           updated_at?: string
         }
@@ -200,7 +203,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      game_type: 'button'
     }
   }
 }

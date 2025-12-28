@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import type { Database } from '@/lib/db/schema';
+import { supabase } from '@/lib/db/supabase';
 import { roundService } from '@/lib/services/roundService';
 import { gameService } from '@/lib/services/gameService';
 import { emitRoundCreated } from '@/lib/socket/handlers/roundHandlers';
@@ -13,7 +11,6 @@ import { emitRoundCreated } from '@/lib/socket/handlers/roundHandlers';
 export async function POST(req: NextRequest) {
   try {
     // Get current session (admin must be authenticated)
-    const supabase = createRouteHandlerClient<Database>({ cookies });
     const {
       data: { session },
       error: sessionError,
