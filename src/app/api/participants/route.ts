@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { participantService } from '@/lib/services/participantService';
+import { sanitizeParticipantName } from '@/lib/utils/sanitize';
 
 /**
  * POST /api/participants
@@ -18,16 +19,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (typeof name !== 'string' || name.trim().length === 0) {
+    // Sanitize name input
+    let sanitizedName: string;
+    try {
+      sanitizedName = sanitizeParticipantName(name);
+    } catch (error) {
       return NextResponse.json(
-        { error: 'Invalid name' },
-        { status: 400 }
-      );
-    }
-
-    if (name.trim().length > 50) {
-      return NextResponse.json(
-        { error: 'Name must be 50 characters or less' },
+        { error: error instanceof Error ? error.message : 'Invalid name' },
         { status: 400 }
       );
     }
@@ -35,7 +33,7 @@ export async function POST(req: NextRequest) {
     // Join game
     const participant = await participantService.joinGame({
       game_token: game_token.toUpperCase(),
-      name: name.trim(),
+      name: sanitizedName,
     });
 
     return NextResponse.json(

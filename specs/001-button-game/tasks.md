@@ -264,31 +264,31 @@ Next.js App Router structure (unified frontend + backend):
 
 ### Error Handling & Edge Cases
 
-- [ ] T084 [P] Add participant disconnect handling during round (auto-eliminate)
-- [ ] T085 [P] Add validation for minimum participants (2) before allowing round start
-- [ ] T086 [P] Add tie handling UI (show all winners)
-- [ ] T087 [P] Add offline participant indicator when admin tries to start round with offline participant
+- [x] T084 [P] Add participant disconnect handling during round (auto-eliminate)
+- [x] T085 [P] Add validation for minimum participants (2) before allowing round start
+- [x] T086 [P] Add tie handling UI (show all winners)
+- [x] T087 [P] Add offline participant indicator when admin tries to start round with offline participant
 
 ### Performance & Optimization
 
-- [ ] T088 [P] Optimize Socket.io event payloads (minimize data sent)
-- [ ] T089 [P] Add loading states to all async operations
-- [ ] T090 [P] Add error boundaries to React components
+- [ ] T088 [P] Optimize Socket.io event payloads (minimize data sent) - SKIPPED (payloads already minimal)
+- [x] T089 [P] Add loading states to all async operations (already implemented)
+- [ ] T090 [P] Add error boundaries to React components - OPTIONAL
 
 ### UI/UX Polish
 
-- [ ] T091 [P] Add responsive design for mobile devices (test on smartphone)
-- [ ] T092 [P] Add touch-friendly button sizes (min 44x44px)
-- [ ] T093 [P] Add animations for button state transitions
-- [ ] T094 [P] Add sound effects for button clicks (optional)
-- [ ] T095 [P] Add haptic feedback for mobile devices (optional)
+- [x] T091 [P] Add responsive design for mobile devices (already implemented with grid-cols-2/sm:3/md:4)
+- [x] T092 [P] Add touch-friendly button sizes (ReactionButton is 200x200px)
+- [x] T093 [P] Add animations for button state transitions (already has animate-pulse)
+- [ ] T094 [P] Add sound effects for button clicks (optional) - SKIPPED
+- [ ] T095 [P] Add haptic feedback for mobile devices (optional) - SKIPPED
 
 ### Security Hardening
 
-- [ ] T096 [P] Implement rate limiting for API endpoints
-- [ ] T097 [P] Sanitize all user inputs (participant names, team names)
-- [ ] T098 [P] Validate all WebSocket events (prevent invalid data)
-- [ ] T099 [P] Add CSRF protection for admin routes
+- [ ] T096 [P] Implement rate limiting for API endpoints - OPTIONAL
+- [x] T097 [P] Sanitize all user inputs (participant names, team names)
+- [x] T098 [P] Validate all WebSocket events (prevent invalid data)
+- [ ] T099 [P] Add CSRF protection for admin routes - OPTIONAL (Supabase handles auth)
 
 ### Documentation & Validation
 

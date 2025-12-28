@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { Server } from 'socket.io';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/lib/socket/types';
 import { validateGameToken } from '@/lib/utils/validation';
-import { handleButtonClick, handleEliminate } from '@/lib/socket/handlers/roundHandlers';
+import { handleButtonClick, handleEliminate, handleParticipantDisconnect } from '@/lib/socket/handlers/roundHandlers';
 
 // Global Socket.io server instance
 let io: Server<ClientToServerEvents, ServerToClientEvents>;
@@ -82,6 +82,12 @@ export async function GET(req: NextRequest) {
             participant_id: participant_id as string,
             game_token: game_token as string,
           });
+
+          // Handle disconnect during active round (auto-eliminate)
+          handleParticipantDisconnect(
+            participant_id as string,
+            game_token as string
+          );
         }
       });
 
