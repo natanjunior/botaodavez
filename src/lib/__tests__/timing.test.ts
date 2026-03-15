@@ -33,4 +33,11 @@ describe('calculateRemainingYellow', () => {
     const endsAt = new Date(Date.now() - 1000)
     expect(calculateRemainingYellow(endsAt)).toBe(0)
   })
+
+  it('returns 0 when yellowEndsAt is exactly now (boundary)', () => {
+    const endsAt = new Date(Date.now())
+    const remaining = calculateRemainingYellow(endsAt)
+    expect(remaining).toBeGreaterThanOrEqual(0)
+    expect(remaining).toBeLessThanOrEqual(1) // at most 1ms drift
+  })
 })
