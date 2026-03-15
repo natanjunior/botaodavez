@@ -32,17 +32,19 @@ const mockRound = {
 }
 
 let sendMock: ReturnType<typeof vi.fn>
+let channelMock: ReturnType<typeof vi.fn>
 
 beforeEach(() => {
   vi.clearAllMocks()
   sendMock = vi.fn().mockResolvedValue({ status: 'ok' })
+  channelMock = vi.fn(() => ({ send: sendMock }))
   vi.mocked(createClient).mockResolvedValue({
     auth: {
       getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'admin-1' } } }),
     },
   } as never)
   vi.mocked(createServiceClient).mockResolvedValue({
-    channel: vi.fn(() => ({ send: sendMock })),
+    channel: channelMock,
   } as never)
   vi.mocked(prisma.round.findUnique).mockResolvedValue(mockRound as never)
   vi.mocked(prisma.round.update).mockResolvedValue({} as never)
@@ -66,10 +68,12 @@ describe('PATCH /api/rounds/[id]/stop', () => {
 
     expect(sendMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        type: 'broadcast',
         event: 'round_stopped',
         payload: { roundId: ROUND_ID },
       })
     )
+    expect(channelMock).toHaveBeenCalledWith('game:ABC123')
   })
 
   it('returns 401 when user is not authenticated', async () => {
