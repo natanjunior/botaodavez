@@ -17,7 +17,7 @@ export default function HomePage() {
     setLoading(true)
     setError('')
 
-    const res = await fetch(`/api/games/${token.toUpperCase()}`)
+    const res = await fetch(`/api/games/by-token/${token.toUpperCase()}`)
     if (res.ok) {
       router.push(`/play/${token.toUpperCase()}`)
     } else {

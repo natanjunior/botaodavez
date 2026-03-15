@@ -48,7 +48,7 @@ export default function GamePage({ params }: { params: Promise<{ token: string }
   // Restore state on mount / reconnect
   useEffect(() => {
     if (!participantId) return
-    fetch(`/api/games/${token}`).then(async (r) => {
+    fetch(`/api/games/by-token/${token}`).then(async (r) => {
       if (!r.ok) return
       const { game } = await r.json()
       const activeRound = game.rounds?.[0]

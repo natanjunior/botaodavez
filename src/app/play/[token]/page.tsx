@@ -19,7 +19,7 @@ export default function PlayPage({ params }: { params: Promise<{ token: string }
 
   useEffect(() => {
     // Fetch game + check for existing participant
-    fetch(`/api/games/${token}`).then(async (r) => {
+    fetch(`/api/games/by-token/${token}`).then(async (r) => {
       if (!r.ok) { router.push('/'); return }
       const { game } = await r.json()
       setGameId(game.id)

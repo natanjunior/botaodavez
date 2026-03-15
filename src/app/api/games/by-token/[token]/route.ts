@@ -1,4 +1,4 @@
-// src/app/api/games/[token]/route.ts
+// src/app/api/games/by-token/[token]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
