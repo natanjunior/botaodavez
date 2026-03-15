@@ -21,6 +21,10 @@ export async function POST(
   })
   if (!round) return NextResponse.json({ error: 'Rodada não encontrada' }, { status: 404 })
 
+  if (round.game.adminId !== user.id) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  }
+
   const transition = validateRoundTransition(round.status as 'waiting' | 'active' | 'finished' | 'stopped', 'active')
   if (!transition.valid) {
     return NextResponse.json({ error: transition.reason }, { status: 409 })

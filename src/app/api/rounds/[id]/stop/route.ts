@@ -18,6 +18,10 @@ export async function PATCH(
   })
   if (!round) return NextResponse.json({ error: 'Não encontrada' }, { status: 404 })
 
+  if (round.game.adminId !== user.id) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+  }
+
   await prisma.round.update({ where: { id: roundId }, data: { status: 'stopped' } })
 
   const serviceClient = await createServiceClient()
