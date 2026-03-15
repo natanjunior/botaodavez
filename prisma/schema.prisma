@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Administrator {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  games        Game[]
+
+  @@map("administrators")
+}
+
+model Game {
+  id           String        @id @default(uuid())
+  token        String        @unique @db.VarChar(6)
+  adminId      String        @map("admin_id")
+  admin        Administrator @relation(fields: [adminId], references: [id])
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  teams        Team[]
+  participants Participant[]
+  rounds       Round[]
+
+  @@map("games")
+}
+
+model Team {
+  id                String             @id @default(uuid())
+  gameId            String             @map("game_id")
+  game              Game               @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  name              String
+  color             String             @db.VarChar(7)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  participants      Participant[]
+  roundParticipants RoundParticipant[]
+
+  @@map("teams")
+}
+
+model Participant {
+  id                String             @id @default(uuid())
+  gameId            String             @map("game_id")
+  game              Game               @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  teamId            String?            @map("team_id")
+  team              Team?              @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  name              String
+  avatarSeed        String             @map("avatar_seed")
+  lastSeen          DateTime?          @map("last_seen")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  roundParticipants RoundParticipant[]
+  roundPlayResults  RoundPlayResult[]
+
+  @@map("participants")
+}
+
+model Round {
+  id                String             @id @default(uuid())
+  gameId            String             @map("game_id")
+  game              Game               @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  status            String             @default("waiting") @db.VarChar(20)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  roundParticipants RoundParticipant[]
+  roundPlays        RoundPlay[]
+
+  @@map("rounds")
+}
+
+model RoundParticipant {
+  id            String      @id @default(uuid())
+  roundId       String      @map("round_id")
+  round         Round       @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  participantId String      @map("participant_id")
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  teamId        String?     @map("team_id")
+  team          Team?       @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@map("round_participants")
+}
+
+model RoundPlay {
+  id               String            @id @default(uuid())
+  roundId          String            @map("round_id")
+  round            Round             @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  yellowDurationMs Int               @map("yellow_duration_ms")
+  yellowEndsAt     DateTime          @map("yellow_ends_at")
+  startedAt        DateTime          @default(now()) @map("started_at")
+  finishedAt       DateTime?         @map("finished_at")
+  results          RoundPlayResult[]
+
+  @@map("round_plays")
+}
+
+model RoundPlayResult {
+  id             String      @id @default(uuid())
+  roundPlayId    String      @map("round_play_id")
+  roundPlay      RoundPlay   @relation(fields: [roundPlayId], references: [id], onDelete: Cascade)
+  participantId  String      @map("participant_id")
+  participant    Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  reactionTimeMs Int?        @map("reaction_time_ms")
+  eliminated     Boolean     @default(false)
+  rank           Int?
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  @@map("round_play_results")
+}
