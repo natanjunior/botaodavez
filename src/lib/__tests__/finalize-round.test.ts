@@ -65,6 +65,7 @@ describe('finalizeRound', () => {
 
     expect(prisma.round.update).not.toHaveBeenCalled()
     expect(sendMock).not.toHaveBeenCalled()
+    expect(prisma.roundPlayResult.updateMany).not.toHaveBeenCalled()
   })
 
   it('broadcasts winner when one participant has lowest time', async () => {
