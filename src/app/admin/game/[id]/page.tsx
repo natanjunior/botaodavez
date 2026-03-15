@@ -34,6 +34,17 @@ export default function AdminGamePage({ params }: { params: Promise<{ id: string
       })
   }, [id])
 
+  // Refetch participant list when presence changes — catches participants who joined after initial load
+  const onlineKey = onlineIds.join(',')
+  useEffect(() => {
+    if (!onlineKey) return
+    fetch(`/api/admin/games/${id}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.game) setGame(d.game)
+      })
+  }, [id, onlineKey])
+
   // Handle round_result broadcast
   useGameChannel(game?.token ?? '', 'round_result', useCallback((payload: BroadcastRoundResult) => {
     setRoundResult(payload)

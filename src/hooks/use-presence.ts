@@ -10,7 +10,7 @@ export function usePresence(token: string, self: PresenceParticipant | null) {
   const channelRef = useRef<RealtimeChannel | null>(null)
 
   useEffect(() => {
-    if (!self) return
+    if (!token) return
 
     const channel = createGameChannel(token)
     channelRef.current = channel
@@ -22,7 +22,7 @@ export function usePresence(token: string, self: PresenceParticipant | null) {
         setOnline(participants)
       })
       .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
+        if (status === 'SUBSCRIBED' && self) {
           await channel.track(self)
         }
       })
